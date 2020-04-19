@@ -14,11 +14,14 @@ class QRContentView: UIView {
   var content: String? // Since we're using this to diff content views, maybe make this a hash?
   var webView: WKWebView?
   
+  var userInteracting = false
+  
   init(content: String, frame: CGRect) {
     super.init(frame: frame)
     self.backgroundColor = UIColor(red: 0.07, green: 0.45, blue: 0.87, alpha: 0.50)
     self.updateCornerRadius()
     
+
     // Work with content
     self.content = content
     
@@ -36,8 +39,11 @@ class QRContentView: UIView {
   }
   
   public func updatePosition(_ bounds: CGRect) {
-    self.frame = bounds
-    self.updateCornerRadius()
+    UIView.animate(withDuration: 0.1, delay: 0.05, options: [.allowUserInteraction], animations: {
+      self.frame = bounds
+      self.webView?.frame.size = self.frame.size
+      self.updateCornerRadius()
+    }, completion: nil)
   }
   
   private func updateCornerRadius() {
@@ -49,8 +55,21 @@ class QRContentView: UIView {
     webView = WKWebView()
     webView?.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
     webView?.load(urlString)
-    print(urlString)
+
+    webView?.scrollView.delegate = self
+
     self.addSubview(webView!)
+    webView?.isOpaque = false
+  }
+  
+}
+
+extension QRContentView: UIScrollViewDelegate {
+  func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    self.userInteracting = true
+  }
+  func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    self.userInteracting = false
   }
 }
 

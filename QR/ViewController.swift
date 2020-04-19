@@ -80,7 +80,11 @@ extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
           if (qrCodeViewLayer.subviews.map { ($0 as! QRContentView).content }.contains(metadataObj.stringValue)) {
             qrCodeViewLayer.subviews.forEach {
               if ($0 as! QRContentView).content == metadataObj.stringValue {
-                ($0 as! QRContentView).updatePosition(barCodeObject!.bounds)
+                if ($0 as! QRContentView).userInteracting {
+                  ($0 as! QRContentView).updatePosition(self.view.frame)
+                } else {
+                  ($0 as! QRContentView).updatePosition(barCodeObject!.bounds)
+                }
               }
             }
           } else {
